@@ -10,8 +10,6 @@
 
 #include <chrono>
 
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_eigen.h>
 #include <Eigen/Dense>
 
 #include <omp.h>

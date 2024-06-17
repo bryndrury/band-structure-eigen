@@ -18,12 +18,12 @@ if(Eigen3_FOUND)
 endif()
 
 # Add the gsl library
-include_directories(/opt/homebrew/Cellar/gsl/2.7/include)
-link_directories(/opt/homebrew/Cellar/gsl/2.7/lib)
-find_package(GSL REQUIRED)
-if(GSL_FOUND)
-    target_link_libraries(minimalcpp GSL::gsl GSL::gslcblas)
-endif()
+# include_directories(/opt/homebrew/Cellar/gsl/2.7/include)
+# link_directories(/opt/homebrew/Cellar/gsl/2.7/lib)
+# find_package(GSL REQUIRED)
+# if(GSL_FOUND)
+#     target_link_libraries(minimalcpp GSL::gsl GSL::gslcblas)
+# endif()
 
 # Add the OpenMP library
 find_package(OpenMP REQUIRED)
