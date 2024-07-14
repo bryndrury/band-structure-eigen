@@ -1,86 +1,12 @@
-#pragma once
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include <Eigen/Dense>
 #include <vector>
 #include <iostream>
 
-#include "vec3.h"
-
-struct tensor_lattice
-{
-public:
-    std::vector< std::vector< std::vector< vec3 > > > data;
-    int size;
-
-    tensor_lattice(int N, vec3 b1, vec3 b2, vec3 b3)
-    {
-        size = N;
-        data = std::vector< std::vector< std::vector< vec3 > > >(N, std::vector< std::vector< vec3 > >(N, std::vector< vec3 >(N)));
-
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < N; j++)
-            {
-                for (int k = 0; k < N; k++)
-                {
-                    data[i][j][k] = b1 * check_index(i, N) + b2 * check_index(j, N) + b3 * check_index(k, N);
-                }
-            }
-        }
-    }
-
-private:
-    double check_index(int index, int N)
-    {
-        if (index+1 > (N+1)/2) 
-        {
-            return index - N;
-        } 
-        else 
-        {
-            return index;
-        }
-    }
-};
-
-struct tensor_matrix
-{
-public:
-    std::vector< std::vector< std::vector< double > > > data;
-    int size;
-
-    tensor_matrix(tensor_lattice &K)
-    {
-        size = K.size;
-        data = std::vector< std::vector< std::vector< double > > >(size, std::vector< std::vector< double > >(size, std::vector< double >(size)));
-
-        for (int i = 0; i < size; i++) 
-        {
-            for (int j = 0; j < size; j++) 
-            {
-                for (int k = 0; k < size; k++) 
-                {
-                    data[i][j][k] = calculate_potential(K.data[i][j][k]);
-                }
-            }
-        }
-    }
-
-private:
-    double calculate_potential(vec3 k)
-    {
-        double Kn = k.norm();
-
-        if (Kn > 0) 
-        {
-            return U0 * exp(-rc/d) * ( sin(rc*Kn) / (d*Kn * ( pow(d*Kn,2) + 1)) + cos(rc*Kn) / (pow(d*Kn,2) + 1) );
-        } 
-        else 
-        {
-            return U0 * exp(-rc/d) * (rc/d+1);
-        }
-    }
-};
+#include "value_definitions.h"
+#include "tensor_matrix.h"
 
 struct H_matrix
 {
@@ -168,3 +94,5 @@ struct H_matrix
         }
     };
 };
+
+#endif
