@@ -7,3 +7,5 @@
 #define d 0.350 // angstroms
 #define rc 0.943 // angstroms
 #define U0 -31.3 // angstroms
+#define k_B 8.617333262145e-5 * eV_to_Ryd // Ryd
+#define T 300 // K

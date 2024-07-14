@@ -2,3 +2,9 @@
 *.DS_Store
 /.vscode
 /build
+/.idea
+/cmake-build-debug
+*.png
+eigenvalues.txt
+energies.data
+main_old.cpp
