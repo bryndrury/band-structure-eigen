@@ -7,7 +7,7 @@
 #include "tensor_lattice.h"
 #include "value_definitions.h"
 
-struct tensor_matrix
+class tensor_matrix
 {
 public:
     std::vector< std::vector< std::vector< double > > > data;

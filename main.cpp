@@ -2,13 +2,14 @@
 #include <fstream>
 #include <vector>
 #include <chrono>
-// #include <omp.h>
+#include <omp.h>
 
 #include <Eigen/Dense>
 
 #include "matrix.h"
 
-void write_eigenvalues_to_file(std::ofstream &file, const H_matrix &H, const int bands, const int cumulative_kstep);
+void write_eigenvalues_to_file(std::ofstream &file, const H_matrix &H, const int bands, const double cumulative_kstep);
+double calculate_cumulative_kstep(const std::vector< vec3 > &paths, const int path_index, const int ksteps, const int step);
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 
     // Key parameters (take cli if valid)
     int N = (argc > 1) ? std::stoi(argv[1]) : 5;
-    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 25;
+    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 25000;
     int bands;
     if (argc > 3 && std::stoi(argv[3]) < N*N*N) {
         bands = std::stoi(argv[3]);
@@ -27,15 +28,15 @@ int main(int argc, char *argv[])
     // Generate the reciprocal lattice space
     tensor_lattice K( N, b1, b2, b3 );
     tensor_matrix U_K( K );
-    H_matrix H( K, U_K, vec3() );
+    H_matrix H_template( K, U_K, vec3() );
 
     double U_K_0 = U_K.data[0][0][0];
 
     // Open the file to write the eigenvalues
-    double cumulative_kstep = 0;
     std::ofstream file;
     file.open("../eigenvalues.txt");
 
+    #pragma omp parallel for collapse(2)
     for (int path_index = 0; path_index < paths.size()-1; path_index++)
     {
         vec3 kstep = ( paths[path_index+1]-paths[path_index] ) / ksteps;
@@ -44,24 +45,54 @@ int main(int argc, char *argv[])
         {
             vec3 qval = paths[path_index] + (kstep * step);
 
+            // Make a copy of the H matrix for thread safety
+            H_matrix H = H_template;
+
             H.update_H_block(K, U_K_0, qval);
             H.calculate_eigenvalues();
 
-            cumulative_kstep += kstep.norm();
-            file << cumulative_kstep << " ";
-
-            write_eigenvalues_to_file(file, H, bands, cumulative_kstep);
-
-            std::cout << "Step: " << step+1 << " of " << ksteps << " Path: " << path_index+1 << " of " << paths.size()-1 << "    \t\t\r" << std::flush;
+            write_eigenvalues_to_file(file, H, bands, calculate_cumulative_kstep(paths, path_index, ksteps, step));
         }
     }
+    file.close();
 }
 
-void write_eigenvalues_to_file(std::ofstream &file, const H_matrix &H, const int bands, const int cumulative_kstep)
+void write_eigenvalues_to_file(std::ofstream &file, const H_matrix &H, const int bands, const double cumulative_kstep)
 {
-    for (int i = 0; i < bands; i++)
+    #pragma omp critical
     {
-        file << H.eigen_values[i] << " ";
+        file << cumulative_kstep << " ";
+        for (int i = 0; i < bands; i++)
+        {
+            file << H.eigen_values[i] << " ";
+        }
+        file << "\n";
     }
-    file << "\n";
 };
+
+double calculate_cumulative_kstep(const std::vector< vec3 > &paths, const int path_index, const int ksteps, const int step)
+{
+    double cumulative_kstep = 0;
+
+    for (int i = 0; i <= path_index; i++)
+    {
+        vec3 kstep = ( paths[i+1]-paths[i] ) / ksteps;
+
+        if (i != path_index)
+        {
+            for (int j = 0; j <= ksteps; j++)
+            {
+                cumulative_kstep += kstep.norm();
+            }
+        }
+        else
+        {
+            for (int j = 0; j <= step; j++)
+            {
+                cumulative_kstep += kstep.norm();
+            }
+        }
+    }
+
+    return cumulative_kstep;
+}

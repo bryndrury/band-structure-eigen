@@ -8,8 +8,9 @@
 #include "value_definitions.h"
 #include "tensor_matrix.h"
 
-struct H_matrix
+class H_matrix
 {
+public:
     Eigen::MatrixXd eigen_data;
     int size;
 
