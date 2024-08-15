@@ -6,6 +6,11 @@ enable_testing()
 
 if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Xpreprocessor -fopenmp -lomp -L/opt/homebrew/opt/libomp/lib -I/opt/homebrew/opt/libomp/include")
+
+    find_package(Eigen3 REQUIRED)
+    if (Eigen3_FOUND)
+        include_directories(${EIGEN3_INCLUDE_DIR})
+    endif()
 elseif(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /openmp")
 else()
