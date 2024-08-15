@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     std::ofstream file;
     file.open("../eigenvalues.txt");
 
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for
     for (int path_index = 0; path_index < paths.size()-1; path_index++)
     {
         vec3 kstep = ( paths[path_index+1]-paths[path_index] ) / ksteps;
