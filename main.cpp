@@ -6,7 +6,7 @@
 
 #include <Eigen/Dense>
 
-#include "matrix.h"
+#include <matrix.h>
 
 void write_eigenvalues_to_file(std::ofstream &file, const H_matrix &H, const int bands, const double cumulative_kstep);
 double calculate_cumulative_kstep(const std::vector< vec3 > &paths, const int path_index, const int ksteps, const int step);
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     // Key parameters (take cli if valid)
     int N = (argc > 1) ? std::stoi(argv[1]) : 5;
-    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 25000;
+    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 25;
     int bands;
     if (argc > 3 && std::stoi(argv[3]) < N*N*N) {
         bands = std::stoi(argv[3]);
@@ -45,9 +45,7 @@ int main(int argc, char *argv[])
         {
             vec3 qval = paths[path_index] + (kstep * step);
 
-            // Make a copy of the H matrix for thread safety
             H_matrix H = H_template;
-
             H.update_H_block(K, U_K_0, qval);
             H.calculate_eigenvalues();
 
@@ -55,6 +53,8 @@ int main(int argc, char *argv[])
         }
     }
     file.close();
+
+    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count() << "ms\n";
 }
 
 void write_eigenvalues_to_file(std::ofstream &file, const H_matrix &H, const int bands, const double cumulative_kstep)
