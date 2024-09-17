@@ -4,6 +4,8 @@
 #include <chrono>
 #include <omp.h>
 
+#include <cstdlib>
+
 #include <Eigen/Dense>
 
 #include <matrix.h>
@@ -16,8 +18,8 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::high_resolution_clock::now();
 
     // Key parameters (take cli if valid)
-    int N = (argc > 1) ? std::stoi(argv[1]) : 5;
-    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 25;
+    int N = (argc > 1) ? std::stoi(argv[1]) : 6;
+    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 250;
     int bands;
     if (argc > 3 && std::stoi(argv[3]) < N*N*N) {
         bands = std::stoi(argv[3]);
@@ -34,9 +36,11 @@ int main(int argc, char *argv[])
 
     // Open the file to write the eigenvalues
     std::ofstream file;
-    file.open("../eigenvalues.txt");
+    std::string filename = "../eigenvalues.txt";
+    // std::string filename = "../eigenvalues_" + std::to_string(N) + "_" + std::to_string(ksteps) + "_" + std::to_string(bands) + ".txt";
+    file.open(filename);
 
-    #pragma omp parallel for
+    #pragma omp parallel for collapse(2)
     for (int path_index = 0; path_index < paths.size()-1; path_index++)
     {
         vec3 kstep = ( paths[path_index+1]-paths[path_index] ) / ksteps;
