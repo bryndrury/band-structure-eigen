@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
     auto start_time = std::chrono::high_resolution_clock::now();
 
     // Key parameters (take cli if valid)
-    int N = (argc > 1) ? std::stoi(argv[1]) : 6;
-    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 250;
+    int N = (argc > 1) ? std::stoi(argv[1]) : 12;
+    int ksteps = (argc > 2) ? std::stoi(argv[2]) : 25;
     int bands;
     if (argc > 3 && std::stoi(argv[3]) < N*N*N) {
         bands = std::stoi(argv[3]);

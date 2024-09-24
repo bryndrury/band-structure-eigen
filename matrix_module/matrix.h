@@ -83,9 +83,8 @@ void H_matrix::calculate_eigenvalues()
 {
     int N = size * size * size;
 
-    Eigen::MatrixXd eigen_vectors(N, N);
-
-    Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > es(eigen_data);
+    Eigen::SelfAdjointEigenSolver< Eigen::MatrixXd > es;
+    es.compute(eigen_data, Eigen::EigenvaluesOnly);
     eigen_values = es.eigenvalues();
 
     // Sort the eigenvalues by magnitude
@@ -101,7 +100,7 @@ void H_matrix::calculate_eigenvalues()
         }
     );
 
-    // Return the sorted eigenvalues to the eigen_values
+    // Return the sorted eigenvalues to the eigen_values (sorted by magnitude)
     for (int i = 0; i < N; i++)
     {
         eigen_values(i) = eigenvalues_vector[i];
